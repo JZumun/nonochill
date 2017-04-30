@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Nonochill</title>
+		<link rel="stylesheet" href="style.css"/>
+		<link rel="stylesheet" href="nono.css"/>
+	</head>
+	<body>
+		<section class="sidebar page-section" id="sidebar">
+			<h1 class="game-title">NonoChill</h1>
+			<p>Play a puzzle:</p>
+			<ul class="list hiden" id="game-size-list">
+				<li v-for="i in [5,10,15,20]" class="game-size" @click="start(i)">
+					<a v-text="`${i}x${i}`"></a>
+				</li>
+				<li>Custom:
+					<form id="game-custom-form" class="inline" @submit.prevent="start(customSize)">
+						<label class="form-field">
+							<span class="label">Size</span> 
+							<input class="input" type="number" min=0 max="25" name="custom-game-width" v-model="customSize"/>
+						</label>
+						<input type="submit" value="Play" class="button attach" id="game-custom-form-submit"/>
+					</form>
+				</li>
+			</ul>
+		</section>
+		<section id="main" class="main page-section">
+			<section class="game empty" v-if="this.uninitialized" id="game-sample">
+				<section class="vertical clue-list">
+					<ul class="solved clue"><li>1</li></ul>
+					<ul class="clue"><li>2</li></ul>
+				</section>
+				<section class="horizontal clue-list">
+					<ul class="clue"><li>2</li></ul>
+					<ul class="solved clue"><li>1</li></ul>
+				</section>
+				<section class="board empty">
+					<div class="game-row">
+						<div class="game-tile" data-state="1"></div>
+						<div class="game-tile" data-state="0" data-certainty="0"><p>NONO<br />CHILL</p></div>
+					</div>
+					<div class="game-row">
+						<div class="game-tile" data-state="2"></div>
+						<div class="game-tile" data-state="1"></div>
+					</div>
+				</section>
+			</section>
+			<section class="game" v-else v-cloak id="game" tabindex="-1" 
+					:data-win="win"
+					@keyup.space="toggleCertainty" 
+					:style="`
+						--board-width:${width};
+						--board-height:${height};
+					`">
+				<section id="section-game-options" class="options">
+					<p>Options</p>
+					<fieldset>
+						<legend>Tentative Marks</legend>
+						<label class="form-field">
+							<input type="checkbox" v-model="uncertaintyFlag"> Enable
+						</label>
+						<div class="buttons">
+							<button @click.prevent="clearUncertain">Clear</button>
+							<button @click.prevent="confirmUncertain">Confirm</button>
+						</div>
+					</fieldset>
+					<button @click.prevent="clearBoard">Clear Board</button>
+				</section>
+				<section id="section-clues-vertical" class="vertical clue-list">
+					<ul v-for="clue,i in verticalClues" class="clue" :data-solved="solved.column[i] ? 1 : 0">
+						<li v-for="clueItem in clue" v-text="clueItem"></li>
+					</ul>
+				</section>
+				<section id="section-clues-horizontal" class="horizontal clue-list">
+					<ul v-for="clue,i in horizontalClues" class="clue" :data-solved="solved.row[i] ? 1 : 0" >
+						<li v-for="clueItem in clue" v-text="clueItem"></li>
+					</ul>
+				</section>
+				<section id="section-board-game" class="board" >
+					<div v-for="row,i in board" class="game-row">
+						<div v-for="tile,j in row" class="game-tile"
+							draggable="false"
+							:data-state="tile.state" 
+							:data-certainty="tile.certainty"  
+							@mouseenter="if($event.buttons) toggle(i,j,$event)"
+							@mousedown="toggle(i,j,$event)" >	
+						</div> 
+					</div>
+				</section>
+			</section>
+		</section>
+		<script src="vue.js"></script>
+		<script>
+			class Tile {
+				constructor(value=0) {
+					this.clear(value)
+				}
+				clear(value=0) {
+					this.value = value;
+					this.state = 0;
+					this.certainty = 1;
+				}
+				toggle(reverse = false, certain = true) {
+					if (reverse) {
+						this.state += this.state == 0 ? Tile.MAX_STATE : -1;
+					} else {
+						this.state += this.state == Tile.MAX_STATE ? -Tile.MAX_STATE : 1;
+					}
+					this.certainty = certain ? 1 : 0;
+				}
+				marked() { return this.certainty && this.state == 1 }
+			}
+			Tile.MAX_STATE = 2;
+
+			const count = n => Array.from(new Array(n),(val,index)=>index+1)
+			const sameArrays = (a,b) => a && b && a.length==b.length && a.every((x,i)=>x==b[i]);
+			const getRuleForArray = arr => arr.reduce((rule,curr)=>{
+				const last = rule.length-1;
+				if (curr) rule[last]++;
+				else if (rule[last] > 0) rule.push(0)
+				return rule;
+			},[0]).filter(x=>x)
+											
+			var game = new Vue({
+			  el: '#main',
+			  data: {
+			  	width: 5,
+			  	height: 5,
+			    board: [],
+			    uncertaintyFlag: false,
+			    rules: {},
+			    rulesCached: false,
+			    solved: {
+			  			column: [],
+			  			row: []
+			  		},
+			  	win: false
+			  },
+			  computed: {
+			  	uninitialized: function() { return this.board.length == 0 },
+			  	verticalClues: function() { return count(this.width).map(i=>this.ruleForColumn(i-1)) },
+			  	horizontalClues: function() { return count(this.height).map(i=>this.ruleForRow(i-1)) },
+			  	tiles: function() { return this.board.reduce((acc,curr)=>acc.concat(curr),[]) }
+			  },
+			  watch: {
+			  },
+			  methods: {
+			  	resetBoard() {
+			  		this.board = [];
+			  		this.rules = {},
+			  		this.solved = {
+			  			column: [],
+			  			row: []
+			  		}
+			  		this.rulesCached = false
+			  		this.uncertaintyFlag = false;
+			  		this.win = false;
+			  	},
+			  	generateBoard({width=5,height=width,density=2/3}={}) {
+			  		this.resetBoard()
+			  		this.width = width;
+			  		this.height = height;
+			  		this.board = count(this.height).map(i=> count(this.width).map(j=> new Tile(Math.random() < density ? 1 : 0)) )
+			  		this.generateRules()
+			  		return this.board;
+			  	},
+			  	generateRules() {
+			  		this.rules.column = count(this.width).map(i=> this.ruleForColumn(i-1) )
+			  		this.rules.row = count(this.height).map(i=> this.ruleForRow(i-1) )
+			  		this.rulesCached = true;
+			  	},
+			  	column(col) { return this.board.map(row=>row[col]) },
+			  	row(row) { return this.board[row] || [] },
+
+			  	ruleForColumn(col) { return this.rulesCached ? this.rules.column[col] 
+			  							: getRuleForArray( this.column(col).map(tile=>tile?tile.value:0) ) },
+			  	marksForColumn(col) { return getRuleForArray( this.column(col).map(tile=>tile.marked()?1:0) ) },
+			  	checkColumn(col) { this.solved.column[col] = sameArrays( this.ruleForColumn(col), this.marksForColumn(col) ) },
+
+			  	ruleForRow(row) { return this.rulesCached ? this.rules.row[row]
+			  							: getRuleForArray( this.row(row).map(tile=>tile?tile.value:0) ) },
+			  	marksForRow(row) { return getRuleForArray( this.row(row).map(tile=>tile.marked()?1:0) ) },
+			  	checkRow(row) { this.solved.row[row] = sameArrays( this.ruleForRow(row), this.marksForRow(row) ) },
+			  	toggle(i,j,e) { 
+			  		const certainty = (this.uncertaintyFlag ? 0 : 1)
+			  		const tile = this.board[i][j];
+			  		if (tile.state !== 0 && tile.certainty !== certainty) {
+			  			tile.certainty = certainty
+			  		} else {
+			  			tile.toggle(e.shiftKey,!this.uncertaintyFlag) 
+			  		}
+			  		this.checkRow(i);
+			  		this.checkColumn(j);
+			  		this.checkSolved()
+			  	},
+			  	toggleCertainty() { this.uncertaintyFlag = !this.uncertaintyFlag },
+			  	clearUncertain() {
+			  		this.tiles.filter(tile=>tile.certainty == 0).forEach(tile=>tile.clear(tile.value));
+			  	},
+			  	confirmUncertain() {
+			  		this.board.forEach((row,i)=>{
+			  			row.forEach((tile,j)=>{
+			  				if (!tile.certainty) { tile.certainty =1; this.checkRow(i); this.checkColumn(j) }
+			  			});
+			  		});
+			  		this.checkSolved()
+			  	},
+			  	clearBoard() {
+			  		this.tiles.forEach(tile=>tile.clear(tile.value));
+			  		this.solved.column = []
+			  		this.solved.row = []
+			  	},
+			  	checkSolved() {
+			  		if (this.solved.column.filter(i=>i).length == this.width && this.solved.row.filter(i=>i).length == this.height) {
+			  			console.log("win");
+			  			this.win = true;
+			  		}
+			  	}
+			  }
+			});
+			//game.generateBoard();
+
+			var gameOptions = new Vue({
+				el: '#sidebar',
+				data: {
+					customSize: 0
+				},
+				methods: {
+					start(i,j=i) { 
+						game.generateBoard({ width:i, height:j }) 
+						game.$el.focus()
+					}
+				}
+			})
+		</script>
+	</body>
+</html>
