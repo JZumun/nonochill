@@ -77,6 +77,15 @@ a:hover, .button:hover {
 :focus {
 	outline:none;
 }
+textarea {
+	width:100%;;
+	min-width:100%;
+	max-width:100%;
+	border:1px solid var(--dim-accent);
+	background-color:transparent;
+	color:currentColor;
+	resize:vertical;
+}
 .inline > * {
 	display:inline-block;
 	vertical-align: middle;
@@ -100,6 +109,7 @@ a:hover, .button:hover {
 .sidebar {
 	background-color:var(--dark-accent);
 	color:var(--translucent-white);
+	overflow-y:auto;
 }
 
 .main {
