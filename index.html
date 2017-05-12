@@ -9,8 +9,7 @@
 		<section class="whole" @keyup.space="toggleCertainty" >
 			<section class="sidebar page-section" id="sidebar">
 				<h1 class="game-title header">NonoChill</h1>
-				<h2 class="header">Play A Puzzle</h2>
-				<section class="sidebar-section">
+				<sidebar-section title="Play" v-cloak>
 					<fieldset>
 						<legend>Preset</legend>
 						<div class="flexy">
@@ -34,9 +33,8 @@
 							<input type="submit" value="Play" class="button" id="load-game-form-submit"/>
 						</form>
 					</fieldset>
-				</section>
-				<h2 class="header">Level Creator</h2>
-				<section class="sidebar-section">
+				</sidebar-section>
+				<sidebar-section title="Level Creator" v-cloak>
 					<form id="game-custom-form" class="inline flexy" @submit.prevent="generateBoard({width:parseInt(createSize),density:0,create:true})">
 						<label class="form-field">
 							<span class="label">Size</span> 
@@ -44,9 +42,8 @@
 						</label>
 						<input type="submit" value="Start" class="button attach" id="create-game-form-submit"/>
 					</form>
-				</section>
-				<h2 class="header" v-if="!this.uninitialized" v-cloak>Game Options</h2>
-				<section class="sidebar-section" v-cloak v-if="!this.uninitialized">
+				</sidebar-section>
+				<sidebar-section v-if="!this.uninitialized" :initially-hidden="false" v-cloak title="Game Options">
 					<div v-if="!this.isCreating">
 						<fieldset>
 							<legend>Tentative Marks</legend>
@@ -71,8 +68,7 @@
 						<small>Copy this code to share this level with others.</small>
 						<textarea readonly onclick="this.focus();this.select()" v-model="serialization"></textarea>
 					</fieldset>
-				</section>
-				
+				</sidebar-section>
 			</section>
 			<section id="main" class="main page-section">
 				<section class="game empty" v-if="this.uninitialized" id="game-sample">
@@ -129,6 +125,22 @@
 		</section>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.3.0/vue.min.js"></script>
 		<script>
+			Vue.component("sidebar-section",{
+				template: `<div><h2 class="header" @click="toggleHidden">{{title}}</h2><section class="sidebar-section" :class={hidden:hidden}><slot></slot></section></div>`,
+				props: {
+					title: String,
+					initiallyHidden: {
+						type: Boolean,
+						default: true
+					}
+				},
+				data: function() {
+					return { hidden: this.initiallyHidden}
+				},
+				methods: {
+					toggleHidden() { return this.hidden = !this.hidden }
+				}
+			})
 			class Tile {
 				constructor(value=0) {
 					this.clear(value)
@@ -207,6 +219,8 @@
 			  		this.win = false;
 			  	},
 			  	generateBoard({width=5,height=width,density=2/3,create=false}={}) {
+			  		this.$children[0].hidden=true;
+			  		this.$children[1].hidden=true;
 			  		this.resetBoard()
 			  		this.width = width;
 			  		this.height = height;
@@ -222,6 +236,7 @@
 			  	generateRules() {
 			  		this.rules.column = count(this.width).map(i=> this.ruleForColumn(i-1) )
 			  		this.rules.row = count(this.height).map(i=> this.ruleForRow(i-1) )
+			  		this.checkAll();
 			  		this.rulesCached = true;
 			  	},
 			  	column(col) { return this.board.map(row=>row[col]) },
@@ -236,6 +251,10 @@
 			  							: getRuleForArray( this.row(row).map(tile=>tile?tile.value:0) ) },
 			  	marksForRow(row) { return getRuleForArray( this.row(row).map(tile=>tile.marked()?1:0) ) },
 			  	checkRow(row) { this.solved.row[row] = sameArrays( this.ruleForRow(row), this.marksForRow(row) ) },
+			  	checkAll() {
+			  		count(this.width).map(i=>this.checkColumn(i-1))
+			  		count(this.height).map(i=>this.checkRow(i-1))
+			  	},
 			  	toggle(i,j,e) { 
 			  		const tile = this.board[i][j];
 			  		if (this.isCreating) {
@@ -275,7 +294,6 @@
 			  	},
 			  	checkSolved() {
 			  		if (this.solved.column.filter(i=>i).length == this.width && this.solved.row.filter(i=>i).length == this.height) {
-			  			console.log("win");
 			  			this.win = true;
 			  		}
 			  	},
@@ -290,10 +308,16 @@
 
 				},
 				loadGame() {
-					const opts = this.deserialize(this.serializedGame);
-					this.generateBoard({width:opts.width, density:0})
-					this.rules.row = opts.rows;
-					this.rules.column = opts.columns;
+					try{
+						const opts = this.deserialize(this.serializedGame);
+						this.generateBoard({width:opts.width, density:0})
+						this.rules.row = opts.rows;
+						this.rules.column = opts.columns;
+						this.checkAll()
+					} catch(e) {
+						this.serializedGame = "INVALID"
+					}
+					
 				},
 				deserialize(code) {
 					const arr = atob(code).split("//")

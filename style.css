@@ -82,9 +82,10 @@ textarea {
 	min-width:100%;
 	max-width:100%;
 	border:1px solid var(--dim-accent);
-	background-color:transparent;
+	background-color:var(--dim-accent);
 	color:currentColor;
 	resize:vertical;
+	padding:0.5em;
 }
 .inline > * {
 	display:inline-block;
@@ -110,6 +111,9 @@ textarea {
 	background-color:var(--dark-accent);
 	color:var(--translucent-white);
 	overflow-y:auto;
+}
+.sidebar div+div {
+	margin-top:0.5em;
 }
 
 .main {
@@ -352,6 +356,7 @@ fieldset {
     padding: 0.5em;
     margin: 0;
     text-align:center;
+    cursor:pointer;
 }
 .header.game-title {
 	font-size:1.5em;
