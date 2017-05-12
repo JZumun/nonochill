@@ -10,6 +10,7 @@ html {
 	--dark-accent: #4a2a3f;
 	--light-accent: #ca8aaf;
 	--gray-accent: #c1b9b9;
+	--highlight-color: #f6f2f3;;
 	--sidebar-width: 20em;
 }
 
@@ -321,6 +322,10 @@ a:hover, .button:hover {
 }
 .buttons > * {
 	display:inline;
+}
+
+.highlight {
+	background-color:var(--highlight-color);
 }
 
 @media all and (max-width:800px) {

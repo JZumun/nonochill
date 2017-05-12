@@ -67,23 +67,25 @@
 					<button @click.prevent="clearBoard">Clear Board</button>
 				</section>
 				<section id="section-clues-vertical" class="vertical clue-list">
-					<ul v-for="clue,i in verticalClues" class="clue" :data-solved="solved.column[i] ? 1 : 0">
+					<ul v-for="clue,i in verticalClues" class="clue" :class="{ highlight: highlight[1]===i}" :data-solved="solved.column[i] ? 1 : 0">
 						<li v-for="clueItem in clue" v-text="clueItem"></li>
 					</ul>
 				</section>
 				<section id="section-clues-horizontal" class="horizontal clue-list">
-					<ul v-for="clue,i in horizontalClues" class="clue" :data-solved="solved.row[i] ? 1 : 0" >
+					<ul v-for="clue,i in horizontalClues" class="clue" :class="{ highlight: highlight[0]===i}" :data-solved="solved.row[i] ? 1 : 0" >
 						<li v-for="clueItem in clue" v-text="clueItem"></li>
 					</ul>
 				</section>
-				<section id="section-board-game" class="board" >
+				<section id="section-board-game" class="board" @mouseleave="highlight=[null,null]" >
 					<div v-for="row,i in board" class="game-row">
 						<div v-for="tile,j in row" class="game-tile"
+							:class="{highlight: highlight[0]===i || highlight[1]===j}"
 							draggable="false"
 							:data-state="tile.state" 
 							:data-certainty="tile.certainty"  
-							@mouseenter="if($event.buttons) toggle(i,j,$event)"
-							@mousedown="toggle(i,j,$event)" >	
+							@mouseenter="mouseEnterTile(i,j,$event)"
+							@mousedown="mouseDownTile(i,j,$event)"
+							@mouseup="mouseUpTile(i,j,$event)" >	
 						</div> 
 					</div>
 				</section>
@@ -134,7 +136,8 @@
 			  			column: [],
 			  			row: []
 			  		},
-			  	win: false
+			  	win: false,
+			  	highlight: [null,null]
 			  },
 			  computed: {
 			  	uninitialized: function() { return this.board.length == 0 },
@@ -143,6 +146,9 @@
 			  	tiles: function() { return this.board.reduce((acc,curr)=>acc.concat(curr),[]) }
 			  },
 			  watch: {
+			  	highlight: function() {
+
+			  	}
 			  },
 			  methods: {
 			  	resetBoard() {
@@ -157,7 +163,6 @@
 			  		this.win = false;
 			  	},
 			  	generateBoard({width=5,height=width,density=2/3}={}) {
-			  		console.log(width,height);
 			  		this.resetBoard()
 			  		this.width = width;
 			  		this.height = height;
@@ -216,7 +221,17 @@
 			  			console.log("win");
 			  			this.win = true;
 			  		}
-			  	}
+			  	},
+			  	mouseEnterTile(i,j,e) {
+			  		this.highlight = [i,j];
+			  		if(e.buttons==1) this.toggle(i,j,e);
+			  	},
+				mouseDownTile(i,j,e) {
+					this.toggle(i,j,e);
+				},
+				mouseUpTile(i,j,e) {
+
+				}
 			  }
 			});
 			//game.generateBoard();
