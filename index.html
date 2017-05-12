@@ -30,7 +30,7 @@
 						<legend>Load Level</legend>
 						<form id="game-load-form" class="" @submit.prevent="loadGame">
 							<small>Paste code below.</small>
-							<textarea v-model="serializedGame" onclick="this.focus();this.select()"></textarea>
+							<textarea v-model="serializedGame" spellcheck="false" onclick="this.focus();this.select()"></textarea>
 							<input type="submit" value="Play" class="button" id="load-game-form-submit"/>
 						</form>
 					</fieldset>
@@ -219,7 +219,7 @@
 			  		this.uncertaintyFlag = false;
 			  		this.win = false;
 			  	},
-			  	generateBoard({width=5,height=width,density=3/4,create=false}={}) {
+			  	generateBoard({width=5,height=width,density=2/3,create=false}={}) {
 			  		this.$children[0].hidden=true;
 			  		this.$children[1].hidden=true;
 			  		this.resetBoard()

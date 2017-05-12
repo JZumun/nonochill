@@ -199,11 +199,11 @@ textarea {
 	color: #ccc;
 }
 .vertical .clue {
-	padding-bottom:1em;
+	padding-bottom:0.25em;
 }
 .horizontal .clue {
 	flex-direction: row;
-	padding-right:1em;
+	padding-right:0.25em;
 }
 
 .clue li {
