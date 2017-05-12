@@ -6,88 +6,96 @@
 		<link rel="stylesheet" href="style.css"/>
 	</head>
 	<body>
-		<section class="sidebar page-section" id="sidebar">
-			<h1 class="game-title">NonoChill</h1>
-			<p>Play a puzzle:</p>
-			<ul class="list hiden" id="game-size-list">
-				<li v-for="i in [5,10,15,20]" class="game-size" @click="start(i)">
-					<a v-text="`${i}x${i}`"></a>
-				</li>
-				<li>Custom:
-					<form id="game-custom-form" class="inline" @submit.prevent="start(customSize)">
-						<label class="form-field">
-							<span class="label">Size</span> 
-							<input class="input" type="number" min=0 max="25" name="custom-game-width" v-model="customSize"/>
-						</label>
-						<input type="submit" value="Play" class="button attach" id="game-custom-form-submit"/>
-					</form>
-				</li>
-			</ul>
-		</section>
-		<section id="main" class="main page-section">
-			<section class="game empty" v-if="this.uninitialized" id="game-sample">
-				<section class="vertical clue-list">
-					<ul class="solved clue"><li>1</li></ul>
-					<ul class="clue"><li>2</li></ul>
+		<section class="whole" @keyup.space="toggleCertainty" >
+			<section class="sidebar page-section" id="sidebar">
+				<h1 class="game-title header">NonoChill</h1>
+				<h2 class="header">Play A Puzzle</h2>
+				<section class="sidebar-section">
+					<fieldset>
+						<legend>Preset</legend>
+						<div class="flexy">
+							<button v-for="i in [5,10,15,20]" class="game-size" @click="generateBoard({width:i})" v-text="`${i}x${i}`"></button>
+						</div>
+					</fieldset>
+					<fieldset>
+						<legend>Custom</legend>
+						<form id="game-custom-form" class="inline flexy" @submit.prevent="generateBoard({width:parseInt(customSize)})">
+								<label class="form-field">
+									<span class="label">Size</span> 
+									<input class="input" type="number" min=0 max="25" name="custom-game-width" v-model="customSize"/>
+								</label>
+								<input type="submit" value="Play" class="button attach" id="game-custom-form-submit"/>
+							</form>
+					</fieldset>
 				</section>
-				<section class="horizontal clue-list">
-					<ul class="clue"><li>2</li></ul>
-					<ul class="solved clue"><li>1</li></ul>
-				</section>
-				<section class="board empty">
-					<div class="game-row">
-						<div class="game-tile" data-state="1"></div>
-						<div class="game-tile" data-state="0" data-certainty="0"><p>NONO<br />CHILL</p></div>
-					</div>
-					<div class="game-row">
-						<div class="game-tile" data-state="2"></div>
-						<div class="game-tile" data-state="1"></div>
-					</div>
-				</section>
-			</section>
-			<section class="game" v-else v-cloak id="game" tabindex="-1" 
-					:data-win="win"
-					@keyup.space="toggleCertainty" 
-					:style="`
-						--board-width:${width};
-						--board-height:${height};
-					`">
-				<section id="section-game-options" class="options">
-					<p>Options</p>
+				<h2 class="header">Game Options</h2>
+				<section class="sidebar-section">
 					<fieldset>
 						<legend>Tentative Marks</legend>
-						<label class="form-field">
-							<input type="checkbox" v-model="uncertaintyFlag"> Enable
-						</label>
-						<div class="buttons">
-							<button @click.prevent="clearUncertain">Clear</button>
-							<button @click.prevent="confirmUncertain">Confirm</button>
+						<div class="flexy">
+							<label class="form-field">
+								<input type="checkbox" v-model="uncertaintyFlag"> On
+							</label>
+							<div class="buttons">
+								<button @click.prevent="clearUncertain">Clear</button>
+								<button @click.prevent="confirmUncertain">Confirm</button>
+							</div>
 						</div>
 					</fieldset>
 					<button @click.prevent="clearBoard">Clear Board</button>
 				</section>
-				<section id="section-clues-vertical" class="vertical clue-list">
-					<ul v-for="clue,i in verticalClues" class="clue" :class="{ highlight: highlight[1]===i}" :data-solved="solved.column[i] ? 1 : 0">
-						<li v-for="clueItem in clue" v-text="clueItem"></li>
-					</ul>
+				
+			</section>
+			<section id="main" class="main page-section">
+				<section class="game empty" v-if="this.uninitialized" id="game-sample">
+					<section class="vertical clue-list">
+						<ul class="solved clue"><li>1</li></ul>
+						<ul class="clue"><li>2</li></ul>
+					</section>
+					<section class="horizontal clue-list">
+						<ul class="clue"><li>2</li></ul>
+						<ul class="solved clue"><li>1</li></ul>
+					</section>
+					<section class="board empty">
+						<div class="game-row">
+							<div class="game-tile" data-state="1"></div>
+							<div class="game-tile" data-state="0" data-certainty="0"><p>NONO<br />CHILL</p></div>
+						</div>
+						<div class="game-row">
+							<div class="game-tile" data-state="2"></div>
+							<div class="game-tile" data-state="1"></div>
+						</div>
+					</section>
 				</section>
-				<section id="section-clues-horizontal" class="horizontal clue-list">
-					<ul v-for="clue,i in horizontalClues" class="clue" :class="{ highlight: highlight[0]===i}" :data-solved="solved.row[i] ? 1 : 0" >
-						<li v-for="clueItem in clue" v-text="clueItem"></li>
-					</ul>
-				</section>
-				<section id="section-board-game" class="board" @mouseleave="highlight=[null,null]" >
-					<div v-for="row,i in board" class="game-row">
-						<div v-for="tile,j in row" class="game-tile"
-							:class="{highlight: highlight[0]===i || highlight[1]===j}"
-							draggable="false"
-							:data-state="tile.state" 
-							:data-certainty="tile.certainty"  
-							@mouseenter="mouseEnterTile(i,j,$event)"
-							@mousedown="mouseDownTile(i,j,$event)"
-							@mouseup="mouseUpTile(i,j,$event)" >	
-						</div> 
-					</div>
+				<section class="game" v-else v-cloak id="game" tabindex="-1" 
+						:data-win="win"
+						:style="`
+							--board-width:${width};
+							--board-height:${height};
+						`">
+					<section id="section-clues-vertical" class="vertical clue-list">
+						<ul v-for="clue,i in verticalClues" class="clue" :class="{ highlight: highlight[1]===i}" :data-solved="solved.column[i] ? 1 : 0">
+							<li v-for="clueItem in clue" v-text="clueItem"></li>
+						</ul>
+					</section>
+					<section id="section-clues-horizontal" class="horizontal clue-list">
+						<ul v-for="clue,i in horizontalClues" class="clue" :class="{ highlight: highlight[0]===i}" :data-solved="solved.row[i] ? 1 : 0" >
+							<li v-for="clueItem in clue" v-text="clueItem"></li>
+						</ul>
+					</section>
+					<section id="section-board-game" class="board" @mouseleave="highlight=[null,null]" >
+						<div v-for="row,i in board" class="game-row">
+							<div v-for="tile,j in row" class="game-tile"
+								:class="{highlight: highlight[0]===i || highlight[1]===j}"
+								draggable="false"
+								:data-state="tile.state" 
+								:data-certainty="tile.certainty"  
+								@mouseenter="mouseEnterTile(i,j,$event)"
+								@mousedown="mouseDownTile(i,j,$event)"
+								@mouseup="mouseUpTile(i,j,$event)" >	
+							</div> 
+						</div>
+					</section>
 				</section>
 			</section>
 		</section>
@@ -124,8 +132,9 @@
 			},[0]).filter(x=>x)
 											
 			var game = new Vue({
-			  el: '#main',
+			  el: '.whole',
 			  data: {
+			  	customSize: 0,
 			  	width: 5,
 			  	height: 5,
 			    board: [],
@@ -188,6 +197,7 @@
 			  	marksForRow(row) { return getRuleForArray( this.row(row).map(tile=>tile.marked()?1:0) ) },
 			  	checkRow(row) { this.solved.row[row] = sameArrays( this.ruleForRow(row), this.marksForRow(row) ) },
 			  	toggle(i,j,e) { 
+			  		if (this.win) return;
 			  		const certainty = (this.uncertaintyFlag ? 0 : 1)
 			  		const tile = this.board[i][j];
 			  		if (tile.state !== 0 && tile.certainty !== certainty) {
@@ -212,6 +222,7 @@
 			  		this.checkSolved()
 			  	},
 			  	clearBoard() {
+			  		if (this.win) return;
 			  		this.tiles.forEach(tile=>tile.clear(tile.value));
 			  		this.solved.column = []
 			  		this.solved.row = []
@@ -234,20 +245,6 @@
 				}
 			  }
 			});
-			//game.generateBoard();
-
-			var gameOptions = new Vue({
-				el: '#sidebar',
-				data: {
-					customSize: 0
-				},
-				methods: {
-					start(i,j=i) {
-						game.generateBoard({ width:parseInt(i), height:parseInt(j) }) 
-						game.$el.focus()
-					}
-				}
-			})
 		</script>
 	</body>
 </html>

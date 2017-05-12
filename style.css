@@ -8,6 +8,7 @@ html {
 	--translucent-white: rgba(255,255,255,0.85);
 	--background: #574656;
 	--dark-accent: #4a2a3f;
+	--dim-accent: #6c5662;
 	--light-accent: #ca8aaf;
 	--gray-accent: #c1b9b9;
 	--highlight-color: #f6f2f3;;
@@ -19,7 +20,6 @@ body {
 
 	margin:0;
 	padding:0;
-	height:100vh;
 
 	background-repeat:no-repeat;
 	background-color: var(--background);
@@ -27,8 +27,13 @@ body {
   	background-size:cover;
   	background-position: bottom;
 
-  	display:grid;
+  
+}
+
+.whole {
+	display:grid;
   	grid-template-columns:20em 1fr;
+  	height:100vh;
 }
 
 a {
@@ -41,7 +46,6 @@ a:hover, .button:hover {
 .form-field {
 	position:relative;
 	display:block;
-	margin-bottom:1px;
 }
 .label {
 	font-size:0.75em;
@@ -52,18 +56,23 @@ a:hover, .button:hover {
 .input {
 	text-align:right;
 	min-width:10em;
+	width:100%;
 }
 .button, .input, button {
 	display:block;
 	font-family:inherit;
 	font-size:1em;
 	background:inherit;
-	border: 1px solid;
+	border: 1px solid var(--dim-accent);
 	color:currentColor;
 }
 .button, button {
 	padding: 1px 5px;
+	background:var(--dim-accent);
 	cursor:pointer;
+}
+.button.attach {
+	border-left-width:0;
 }
 :focus {
 	outline:none;
@@ -88,17 +97,9 @@ a:hover, .button:hover {
 	opacity:0;
 }
 
-.page-section {
-	padding:1em;
-}
-
 .sidebar {
 	background-color:var(--dark-accent);
 	color:var(--translucent-white);
-}
-
-.game-title {
-	border-bottom:1px solid;
 }
 
 .main {
@@ -306,20 +307,26 @@ a:hover, .button:hover {
 	display:none;
 }
 
-.options {
-	font-size:0.75em;
-	padding:0.5em;
-}
-.options > *+* {
+.sidebar-section > *+* {
 	margin-top:0.5em;
 }
-.options fieldset {
+fieldset {
+	border:1px solid var(--dim-accent);
+	margin-left:0;
+}
+
+.flexy {
 	display:flex;
 	flex-wrap:wrap;
 	justify-content: space-between;
-	margin:0;
-	border:1px solid;
 }
+.game-size, .form-field {
+	flex-grow:1;
+}
+.game-size +.game-size {
+	margin-left:1em;
+}
+
 .buttons > * {
 	display:inline;
 }
@@ -328,8 +335,29 @@ a:hover, .button:hover {
 	background-color:var(--highlight-color);
 }
 
+.header {
+	font-size:1em;
+    background: var(--light-accent);
+    color: var(--dark-accent);
+    padding: 0.5em;
+    margin: 0;
+    text-align:center;
+}
+.header.game-title {
+	font-size:1.5em;
+	background: var(--dark-accent);
+	color:var(--light-accent);
+	letter-spacing: 1ch;
+}
+.sidebar-section {
+	padding:1em;
+}
+.sidebar-section + .header{
+	margin-top:0.5em;
+}
+
 @media all and (max-width:800px) {
-	body {
+	.whole {
 		display:block;
 	}
 	.page-section {
