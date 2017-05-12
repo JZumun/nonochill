@@ -191,7 +191,7 @@ textarea {
     margin:0;
     padding:0;
 	font-size:2vmin;
-	font-size: calc(0.02*(100vmin - 20em));
+	font-size: calc((-0.002*(var(--board-width)) + 0.06)*(100vmin - 20em));
 	flex: 1 1 0;
 	background-color:var(--translucent-white);
 }
