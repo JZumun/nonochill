@@ -157,6 +157,7 @@
 			  		this.win = false;
 			  	},
 			  	generateBoard({width=5,height=width,density=2/3}={}) {
+			  		console.log(width,height);
 			  		this.resetBoard()
 			  		this.width = width;
 			  		this.height = height;
@@ -226,8 +227,8 @@
 					customSize: 0
 				},
 				methods: {
-					start(i,j=i) { 
-						game.generateBoard({ width:i, height:j }) 
+					start(i,j=i) {
+						game.generateBoard({ width:parseInt(i), height:parseInt(j) }) 
 						game.$el.focus()
 					}
 				}

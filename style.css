@@ -50,6 +50,7 @@ a:hover, .button:hover {
 }
 .input {
 	text-align:right;
+	min-width:10em;
 }
 .button, .input, button {
 	display:block;
@@ -249,13 +250,11 @@ a:hover, .button:hover {
 	transform: rotate(var(--rotate)) scaleX(var(--scale-x)) scaleY(var(--scale-y));
 	content:"";
 	display:block;
-	height:20%;
-	width:20%;
+	height:100%;
+	width:100%;
 	position:absolute;
-	top:50%;
-	left:50%;
-	margin-top:-10%;
-	margin-left:-10%;
+	top:0;
+	left:0;
 	opacity:var(--opacity);
 	background-color: var(--bgcolor); 
 	z-index:0;
@@ -263,18 +262,22 @@ a:hover, .button:hover {
 	transition: opacity 0.1s, transform 0.1s;
 }
 .game-tile[data-state="1"] {
-	--scale-x:3;
-	--scale-y:3;
+	--scale-x:0.6;
+	--scale-y:0.6;
 	--opacity:1;
 	--bgcolor:var(--dark-accent);
 }
+[data-win='true'] {
+	--board-gap:0;
+}
 [data-win='true'] .game-tile[data-state="1"] {
-	--scale-x: 5;
-	--scale-y: 5;
+	--scale-x: 1;
+	--scale-y: 1;
 }
 
 .game-tile[data-state="2"] {
-	--scale-x:4;
+	--scale-y:0.8;
+	--scale-x:0.2;
 	--bgcolor:var(--gray-accent);
 	--opacity:1;
 }
@@ -289,13 +292,13 @@ a:hover, .button:hover {
 }
 
 .game-tile[data-state="1"][data-certainty="0"] {
-	--scale-x:1.5;
-	--scale-y:1.5;
+	--scale-x:0.3;
+	--scale-y:0.3;
 	--opacity:0.5;
 }
 .game-tile[data-state="2"][data-certainty="0"]  {
-	--scale-x:2;
-	--scale-y:0.75;
+	--scale-x:0.4;
+	--scale-y:0.15;
 }
 
 [v-cloak] {
