@@ -73,7 +73,7 @@
 					</fieldset>
 				</sidebar-section>
 			</section>
-			<section id="main" class="main page-section">
+			<section id="main" class="main page-section" tabindex="-1">
 				<section class="game empty" v-if="this.uninitialized" id="game-sample">
 					<section class="vertical clue-list">
 						<ul class="clue" data-solved="1"><li>1</li></ul>
@@ -212,6 +212,7 @@
 				else if (rule[last] > 0) rule.push(0)
 				return rule;
 			},[0]).filter(x=>x)
+
 											
 			var game = new Vue({
 			  el: '.whole',
@@ -272,6 +273,9 @@
 			  		if(!create) {
 			  			this.generateRules()
 			  		}
+			  		Vue.nextTick(function() {
+			  			document.querySelector("#game").scrollIntoView();
+			  		})
 			  		
 			  		return this.board;
 			  	},
