@@ -2,6 +2,7 @@
 <html>
 	<head>
 		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>Nonochill</title>
 		<link rel="stylesheet" href="style.css"/>
 	</head>
@@ -12,14 +13,14 @@
 				<sidebar-section title="Play" v-cloak>
 					<fieldset>
 						<legend>Preset</legend>
-						<div class="flexy">
+						<div class="griddy">	
 							<button v-for="i in [5,10,15,20]" class="game-size" @click="generateBoard({width:i})" v-text="`${i}x${i}`"></button>
 						</div>
 					</fieldset>
 					<fieldset>
 						<legend>Custom Size</legend>
 						<form id="game-custom-form" class="inline flexy" @submit.prevent="generateBoard({width:parseInt(customSize)})">
-							<label class="form-field">
+							<label class="form-field stretch">
 								<span class="label">Size</span> 
 								<input class="input" type="number" min=0 max="25" name="custom-game-width" v-model="customSize"/>
 							</label>
@@ -37,7 +38,7 @@
 				</sidebar-section>
 				<sidebar-section title="Level Creator" v-cloak>
 					<form id="game-custom-form" class="inline flexy" @submit.prevent="generateBoard({width:parseInt(createSize),density:0,create:true})">
-						<label class="form-field">
+						<label class="form-field stretch">
 							<span class="label">Size</span> 
 							<input class="input" type="number" min=0 max="25" name="create-game-width" v-model="createSize"/>
 						</label>
@@ -46,7 +47,7 @@
 				</sidebar-section>
 				<sidebar-section v-if="!this.uninitialized" :initially-hidden="false" v-cloak title="Game Options">
 					<div v-if="!this.isCreating">
-						<fieldset>
+						<fieldset :disabled="this.win">
 							<legend>Tentative Marks</legend>
 							<div class="flexy">
 								<label class="form-field">
@@ -58,7 +59,7 @@
 								</div>
 							</div>
 						</fieldset>
-						<fieldset>
+						<fieldset :disabled="this.win">
 							<legend>Board</legend>
 							<button @click.prevent="clearBoard">Clear Board</button>
 						</fieldset>

@@ -12,7 +12,7 @@ html {
 	--light-accent: #ca8aaf;
 	--gray-accent: #c1b9b9;
 	--highlight-color: #f6f2f3;;
-	--sidebar-width: 20em;
+	--sidebar-width: 20vw;
 }
 
 body {
@@ -32,7 +32,7 @@ body {
 
 .whole {
 	display:grid;
-  	grid-template-columns:20em 1fr;
+  	grid-template-columns:var(--sidebar-width) 1fr;
   	height:100vh;
 }
 
@@ -55,7 +55,6 @@ a:hover, .button:hover {
 }
 .input {
 	text-align:right;
-	min-width:10em;
 	width:100%;
 }
 .button, .input, button {
@@ -328,17 +327,23 @@ fieldset {
 	border:1px solid var(--dim-accent);
 	margin-left:0;
 }
+[disabled] {
+	opacity:0.25;
+}
 
 .flexy {
 	display:flex;
 	flex-wrap:wrap;
 	justify-content: space-between;
 }
-.game-size, .form-field {
-	flex-grow:1;
+.flexy > .stretch {
+	flex: 1 1 0;
 }
-.game-size +.game-size {
-	margin-left:1em;
+
+.griddy {
+    display: grid;
+    grid-template-columns: repeat(auto-fill,minmax(50px,1fr));
+    grid-gap: 0.5em;
 }
 
 .buttons > * {
