@@ -76,12 +76,12 @@
 			<section id="main" class="main page-section">
 				<section class="game empty" v-if="this.uninitialized" id="game-sample">
 					<section class="vertical clue-list">
-						<ul class="solved clue"><li>1</li></ul>
+						<ul class="clue" data-solved="1"><li>1</li></ul>
 						<ul class="clue"><li>2</li></ul>
 					</section>
 					<section class="horizontal clue-list">
 						<ul class="clue"><li>2</li></ul>
-						<ul class="solved clue"><li>1</li></ul>
+						<ul class="solved clue" data-solved="1"><li>1</li></ul>
 					</section>
 					<section class="board empty">
 						<div class="game-row">
@@ -99,14 +99,22 @@
 						:style="`
 							--board-width:${width};
 							--board-height:${height};
+							--clue-height:${clueHeight};
+							--clue-width:${clueWidth};
 						`">
 					<section id="section-clues-vertical" class="vertical clue-list">
-						<ul v-for="clue,i in verticalClues" class="clue" :class="{ highlight: highlight[1]===i}" :data-solved="solved.column[i] ? 1 : 0">
+						<ul v-for="clue,i in verticalClues" class="clue" :class="{ 
+								highlight: highlight[1]===i,
+								sparse: clue.length < clueHeight
+							}"  :style=`--clue-gap:${clueGap(clue,clueHeight)}` :data-solved="solved.column[i] ? 1 : 0">
 							<li v-for="clueItem in clue" v-text="clueItem"></li>
 						</ul>
 					</section>
 					<section id="section-clues-horizontal" class="horizontal clue-list">
-						<ul v-for="clue,i in horizontalClues" class="clue" :class="{ highlight: highlight[0]===i}" :data-solved="solved.row[i] ? 1 : 0" >
+						<ul v-for="clue,i in horizontalClues" class="clue" :class="{ 
+								highlight: highlight[0]===i,
+								sparse: clue.length < clueWidth
+							}" :style=`--clue-gap:${clueGap(clue,clueWidth)}` :data-solved="solved.row[i] ? 1 : 0" >
 							<li v-for="clueItem in clue" v-text="clueItem"></li>
 						</ul>
 					</section>
@@ -202,7 +210,9 @@
 			  	serialization: function() { return btoa(this.width + "//" +
 							this.verticalClues.map(x=>x.toString()).join("|") + "//" +
 							this.horizontalClues.map(x=>x.toString()).join("|"))
-			  	}
+			  	},
+			  	clueWidth: function() { return Math.ceil(this.width/2) },
+			  	clueHeight: function() { return Math.ceil(this.height/2) },
 			  },
 			  watch: {
 			  	highlight: function() {
@@ -328,6 +338,9 @@
 					const columns = arr[1].split("|").map(x=>x.split(",").map(x=>parseInt(x)).filter(x=>!Number.isNaN(x)))
 					const rows = arr[2].split("|").map(x=>x.split(",").map(x=>parseInt(x)).filter(x=>!Number.isNaN(x)))
 					return {width,columns,rows}
+				},
+				clueGap(clue,basis) {
+					return clue ? basis - clue.length : 0;
 				}
 			  }
 			});
