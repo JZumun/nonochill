@@ -76,6 +76,7 @@ a:hover, .button:hover {
 	padding: 1px 5px;
 	background:var(--dim-accent);
 	cursor:pointer;
+	text-transform:inherit;
 }
 .button.attach {
 	border-left-width:0;

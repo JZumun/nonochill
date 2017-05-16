@@ -332,7 +332,7 @@
 			  	},
 			  	clearBoard() {
 			  		if (this.win) return;
-			  		this.tiles.forEach(tile=>tile.clear(tile.value));
+			  		this.tiles.forEach(tile=>tile.clear(!this.isCreating&&tile.value));
 			  		this.solved.column = []
 			  		this.solved.row = []
 			  	},
