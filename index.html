@@ -47,25 +47,22 @@
 					</form>
 				</sidebar-section>
 				<sidebar-section v-if="!this.uninitialized" :initially-hidden="false" v-cloak title="Game Options">
-					<div v-if="!this.isCreating">
-						<fieldset :disabled="this.win">
-							<legend>Tentative Marks</legend>
-							<div class="flexy">
-								<label class="form-field">
-									<input type="checkbox" v-model="uncertaintyFlag"> On
-								</label>
-								<div class="buttons">
-									<button @click.prevent="clearUncertain">Clear</button>
-									<button @click.prevent="confirmUncertain">Confirm</button>
-								</div>
+					<fieldset v-if="!this.isCreating" :disabled="this.win">
+						<legend>Tentative Marks</legend>
+						<div class="flexy">
+							<label class="form-field">
+								<input type="checkbox" v-model="uncertaintyFlag"> On
+							</label>
+							<div class="buttons">
+								<button @click.prevent="clearUncertain">Clear</button>
+								<button @click.prevent="confirmUncertain">Confirm</button>
 							</div>
-						</fieldset>
-						<fieldset :disabled="this.win">
-							<legend>Board</legend>
-							<button @click.prevent="clearBoard">Clear Board</button>
-						</fieldset>
-						
-					</div>
+						</div>
+					</fieldset>
+					<fieldset :disabled="this.win">
+						<legend>Board</legend>
+						<button @click.prevent="clearBoard">Clear Board</button>
+					</fieldset>
 					<fieldset>
 						<legend>Level Code</legend>
 						<small>Copy this code to share this level with others.</small>
@@ -264,6 +261,7 @@
 			  		this.win = false;
 			  	},
 			  	generateBoard({width=5,height=width,density=gauss(),create=false}={}) {
+			  		console.log({width,height,density});
 			  		this.resetBoard()
 			  		this.width = width;
 			  		this.height = height;
