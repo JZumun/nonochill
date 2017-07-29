@@ -3,6 +3,8 @@ Nonogram game implementation using Vue.
 
 Created to check out how Vue is used, and also because I really like nonograms.
 
+Check it out [here](https://jzumun.github.io/nonochill/)
+
 ## What's a Nonogram?
 [Nonograms](https://en.wikipedia.org/wiki/Nonogram) according to wikipedia are “picture logic puzzles in which cells in a grid must be colored or left blank according to numbers at the side of the grid to reveal a hidden picture.” More details, as well as some tips on solving nonograms, can be found on that link.
 
